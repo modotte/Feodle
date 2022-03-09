@@ -18,12 +18,22 @@ type Model = {
 }
 
 type Message =
-    | EntryChanged of string
+    | CurrentEntryChanged of string
     | AddedEntry
     | TriedNext
 
+let init = {Entries = [||]}, Cmd.none
+
+let update message model =
+    match message with
+    | AddedEntry -> model, Cmd.none
+    | CurrentEntryChanged(_) -> failwith "Not Implemented"
+    | TriedNext -> failwith "Not Implemented"
+
 module View =
-    let mainView = 
+    [<ReactComponent>]
+    let mainView () = 
+        let model, dispatch = React.useElmish(init, update, [||])
         Html.div [
             Html.h1 "Hello world!"
             Html.input [
