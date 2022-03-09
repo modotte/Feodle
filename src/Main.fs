@@ -10,7 +10,10 @@ type Components =
     [<ReactComponent>]
     static member HelloWorld() = Html.h1 "Hello World"
 
+[<ReactComponent>]
+let main = Html.h1 "Hello world"
+
 ReactDOM.render(
-    Components.HelloWorld(),
+    main,
     document.getElementById "feliz-app"
 )
