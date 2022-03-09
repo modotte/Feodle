@@ -6,9 +6,11 @@ open Fable.Core.JsInterop
 
 importSideEffects "./styles/global.scss"
 
-let main = Html.h1 "Hello world"
+
+module View =
+    let main = Html.h1 "Hello world"
 
 ReactDOM.render(
-    main,
+    View.main,
     document.getElementById "feliz-app"
 )
