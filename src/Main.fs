@@ -8,14 +8,22 @@ open Fable.Core.JsInterop
 
 importSideEffects "./styles/global.scss"
 
+type EntryId = EntryId of int
+type Entry = {
+    Id: EntryId
+    Letters: string array
+}
+type Model = {
+    Entries: Entry array
+}
+
 type Message =
     | EntryChanged of string
     | AddedEntry
     | TriedNext
 
-
 module View =
-    let main = 
+    let mainView = 
         Html.div [
             Html.h1 "Hello world!"
             Html.input [
@@ -25,6 +33,6 @@ module View =
         ]
 
 ReactDOM.render(
-    View.main,
+    View.mainView,
     document.getElementById "feliz-app"
 )
