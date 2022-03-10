@@ -25,15 +25,16 @@ let words = [|
 
 type GameState = Lost | InProgress | Won
 
-type Color = Grey | Green | Yellow
+type Color = Red | Green | Yellow
 type Entry = {
     Letters: string
+    ColoredLetters: string
 }
 type Model = {
     Entries: Entry array
     EntryAnswer: string
-    CurrentTries: int
-    CurrentCorrectAnswer: string
+    Tries: int
+    CorrectAnswer: string
     State: GameState
 }
 
@@ -43,19 +44,25 @@ type Message =
     | TriedNext
     | GameStateUpdated of GameState
 
-let randomChoice (choices: string array) =
+let randomChoiceOf (choices: string array) =
     let index = Random().Next(choices |> Array.length)
     choices[index]
 
-let init = { Entries = [||]; EntryAnswer = ""; CurrentTries = 1; CurrentCorrectAnswer = randomChoice words; State = InProgress }, Cmd.none
+let init = { Entries = [||]; EntryAnswer = ""; Tries = 1; CorrectAnswer = randomChoiceOf words; State = InProgress }, Cmd.none
+
+let asColored (correctAnswer: string) (letters: string) =
+    if letters = correctAnswer then
+        "G G G G G G"
+    else
+        ""
 
 let update message model =
     match message with
     | EntryChanged answer -> { model with EntryAnswer = answer }, Cmd.none
     | AddedEntry -> 
         { model with
-            Entries = [|{ Letters = model.EntryAnswer }|] |> Array.append model.Entries
-            CurrentTries = model.CurrentTries + 1 }, Cmd.none
+            Entries = [|{ Letters = model.EntryAnswer; ColoredLetters = asColored model.CorrectAnswer model.EntryAnswer }|] |> Array.append model.Entries
+            Tries = model.Tries + 1 }, Cmd.none
     | TriedNext -> failwith "Not Implemented"
     | GameStateUpdated state -> { model with State = state }, Cmd.none
 
@@ -66,19 +73,19 @@ module View =
     let mainView () = 
         let model, dispatch = React.useElmish(init, update, [||])
         Html.div [
-            Html.h1 $"Tries: {model.CurrentTries - 1}"
-            Html.h1 $"Answer: {model.CurrentCorrectAnswer}"
+            Html.h1 $"Tries: {model.Tries - 1}"
+            Html.h1 $"Answer: {model.CorrectAnswer}"
             Html.h1 $"State: {model.State}"
             Html.input [
                 prop.autoFocus true
                 prop.onKeyUp (fun key -> 
                     if key.code = "Enter" then
                         if model.EntryAnswer |> isWordInList then
-                            if model.CurrentTries = MAX_TRIES then
+                            if model.Tries = MAX_TRIES then
                                 dispatch AddedEntry
                                 dispatch (GameStateUpdated Lost)
                             else
-                                if model.EntryAnswer = model.CurrentCorrectAnswer then
+                                if model.EntryAnswer = model.CorrectAnswer then
                                     dispatch AddedEntry
                                     dispatch (GameStateUpdated Won)
                                 else
@@ -95,7 +102,16 @@ module View =
 
             Html.ul [
                 Html.div (
-                    model.Entries |> Array.map (fun a -> Html.li [ Html.h2 a.Letters ])
+                    model.Entries |> Array.map (fun a -> 
+                        Html.li [
+                            Html.span [
+                                prop.children [
+                                    Html.h2 a.Letters 
+                                    Html.h2 a.ColoredLetters
+                                ]
+                            ]
+                        ]
+                    )
                 )
                 Html.li [
                     Html.h2 model.EntryAnswer
