@@ -8,6 +8,18 @@ open Fable.Core.JsInterop
 
 importSideEffects "./styles/global.scss"
 
+let [<Literal>] MAX_TRIES = 6
+let words = [|
+    "cargo"
+    "mango"
+    "dafny"
+    "fruit"
+    "cycle"
+    "darks"
+    "white"
+    "later"
+|]
+
 type EntryId = EntryId of int
 type Entry = {
     Id: EntryId
@@ -15,6 +27,7 @@ type Entry = {
 }
 type Model = {
     Entries: Entry array
+    CurrentTries: int
 }
 
 type Message =
@@ -22,12 +35,12 @@ type Message =
     | AddedEntry
     | TriedNext
 
-let init = {Entries = [||]}, Cmd.none
+let init = { Entries = [||]; CurrentTries = 0 }, Cmd.none
 
 let update message model =
     match message with
-    | AddedEntry -> model, Cmd.none
     | CurrentEntryChanged(_) -> failwith "Not Implemented"
+    | AddedEntry -> { model with CurrentTries = model.CurrentTries + 1 }, Cmd.none
     | TriedNext -> failwith "Not Implemented"
 
 module View =
@@ -35,10 +48,10 @@ module View =
     let mainView () = 
         let model, dispatch = React.useElmish(init, update, [||])
         Html.div [
-            Html.h1 "Hello world!"
+            Html.h1 $"Current tries: {model.CurrentTries}"
             Html.input [
-                prop.hidden true
                 prop.autoFocus true
+                prop.onKeyDown (fun key -> if key.code = "Enter" then dispatch AddedEntry)
             ]
         ]
 
