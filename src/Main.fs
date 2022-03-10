@@ -24,7 +24,8 @@ let words = [|
 |]
 
 type GameState = Lost | InProgress | Won
-type EntryId = EntryId of int
+
+type Color = Grey | Green | Yellow
 type Entry = {
     Letters: string
 }
@@ -65,15 +66,15 @@ module View =
     let mainView () = 
         let model, dispatch = React.useElmish(init, update, [||])
         Html.div [
-            Html.h1 $"Current tries: {model.CurrentTries}"
-            Html.h1 $"Current correct answer: {model.CurrentCorrectAnswer}"
-            Html.h1 $"Current game state: {model.State}"
+            Html.h1 $"Tries: {model.CurrentTries - 1}"
+            Html.h1 $"Answer: {model.CurrentCorrectAnswer}"
+            Html.h1 $"State: {model.State}"
             Html.input [
                 prop.autoFocus true
                 prop.onKeyUp (fun key -> 
                     if key.code = "Enter" then
                         if model.EntryAnswer |> isWordInList then
-                            if model.CurrentTries > MAX_TRIES then
+                            if model.CurrentTries = MAX_TRIES then
                                 dispatch AddedEntry
                                 dispatch (GameStateUpdated Lost)
                             else
@@ -85,6 +86,11 @@ module View =
                 )
                 prop.onTextChange (EntryChanged >> dispatch)
                 prop.maxLength MAX_WORD_LENGTH
+                prop.disabled (
+                    match model.State with
+                    | InProgress -> false
+                    | _ -> true
+                )
             ]
 
             Html.ul [
