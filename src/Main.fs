@@ -62,9 +62,9 @@ let asColored (correctAnswer: string) (letters: string) =
                     if x = correctAnswer[i] then
                         'G'
                     else
-                        if not (correctAnswer.Contains(x)) then
-                            'R'
-                        else 'Y'
+                        if correctAnswer.Contains(x) then
+                            'Y'
+                        else 'R'
             )
 
         new string(r)
