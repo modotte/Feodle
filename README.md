@@ -43,3 +43,7 @@ To run the tests using the command line and of course in your CI server, you hav
 ```
 npm test
 ```
+
+## License
+
+This software has been released under the MIT license. For more details, please see LICENSE file.
