@@ -54,6 +54,7 @@ let randomChoiceOf (choices: string array) =
 let init = { Guesses = [||]; Guess = ""; Tries = 1; Answer = randomChoiceOf words; State = InProgress }, Cmd.none
 
 let asColored (answer: string) (guess: string) =
+    // TODO: Handle duplicate letters in answer and guess
     let guesses = guess |> Seq.toArray
     let r = 
         guesses
