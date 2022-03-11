@@ -99,6 +99,8 @@ module View =
     let mainView () = 
         let model, dispatch = React.useElmish(init, update, [||])
         Bulma.container [
+            Bulma.title "Feodle - A barebone, breadboad minimal Wordle"
+
             Bulma.box [
                 Bulma.columns [
                     columns.isCentered
