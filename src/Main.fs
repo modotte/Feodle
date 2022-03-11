@@ -113,7 +113,7 @@ module View =
                     ]
                 ]
 
-                Bulma.title "Feodle - A barebone, breadboad minimal Wordle"
+                Bulma.title "Feodle - A barebone, breadboad minimal Wordle by modotte"
 
                 Bulma.box [
                     Bulma.columns [
