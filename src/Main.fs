@@ -27,8 +27,6 @@ let words = [|
 |]
 
 type GameState = Lost | InProgress | Won
-
-type Color = Red | Green | Yellow
 type Entry = {
     UserGuess: string
     ColoredGuess: string
@@ -53,7 +51,25 @@ let randomChoiceOf (choices: string array) =
 let init = { Guesses = [||]; Guess = ""; Tries = 1; Answer = randomChoiceOf words; State = InProgress }, Cmd.none
 
 let asColored (answer: string) (guess: string) =
-    ""
+    let guesses = guess |> Seq.toArray
+    let occurences = guesses |> Seq.countBy id |> Seq.toArray
+    let r = 
+        guesses
+        |> Array.mapi (fun i x -> 
+            if x = answer[i] then
+                'G'
+            else
+                if answer.Contains(x) then
+                    'Y'
+                else 'B'
+        ) 
+
+    new string(r)
+
+
+
+
+
 let update message model =
     match message with
     | GuessChanged answer -> { model with Guess = answer }, Cmd.none
