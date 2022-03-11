@@ -2,11 +2,12 @@ module Main
 
 open System
 
+open Browser
+open Fable.Core.JsInterop
 open Feliz
+open Feliz.Bulma
 open Feliz.UseElmish
 open Elmish
-open Browser.Dom
-open Fable.Core.JsInterop
 
 importSideEffects "./styles/global.scss"
 
@@ -94,7 +95,7 @@ module View =
     [<ReactComponent>]
     let mainView () = 
         let model, dispatch = React.useElmish(init, update, [||])
-        Html.div [
+        Bulma.field.div [
             Html.h1 [
                 prop.hidden (model.State = InProgress)
                 prop.text $"Answer: {model.Answer}"
