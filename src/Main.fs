@@ -24,6 +24,8 @@ let words = [|
     "color"
     "pedal"
     "coton"
+    "radar"
+    "blues"
 |]
 
 type GameState = Lost | InProgress | Won
@@ -50,18 +52,22 @@ let randomChoiceOf (choices: string array) =
 
 let init = { Guesses = [||]; Guess = ""; Tries = 1; Answer = randomChoiceOf words; State = InProgress }, Cmd.none
 
+let simpleValidate (answer: string) (letter: char) = if answer.Contains(letter) then 'Y' else 'B'
+
 let asColored (answer: string) (guess: string) =
     let guesses = guess |> Seq.toArray
     let occurences = guesses |> Seq.countBy id |> Seq.toArray
+    let isWithDuplicates occurences = occurences |> Array.forall (fun x -> snd x <> 1)
     let r = 
         guesses
-        |> Array.mapi (fun i x -> 
-            if x = answer[i] then
-                'G'
+        |> Array.mapi (fun i _ -> 
+            if answer.IndexOf(guess[i]) = -1 then
+                'R'
             else
-                if answer.Contains(x) then
-                    'Y'
-                else 'B'
+                if guess[i] = answer[i] then
+                    'G'
+                else
+                    'Y'       
         ) 
 
     new string(r)
