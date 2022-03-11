@@ -95,57 +95,70 @@ module View =
     [<ReactComponent>]
     let mainView () = 
         let model, dispatch = React.useElmish(init, update, [||])
-        Bulma.field.div [
-            Html.h1 [
-                prop.hidden (model.State = InProgress)
-                prop.text $"Answer: {model.Answer}"
-            ]
-            Html.input [
-                prop.autoFocus true
-                prop.onKeyUp (fun key -> 
-                    if key.code = "Enter" then
-                        if model.Guess |> isWordInList then
-                            if model.Tries = MAX_TRIES then
-                                dispatch AddedGuess
-                                dispatch (GameStateUpdated Lost)
-                            else
-                                if model.Guess = model.Answer then
-                                    dispatch AddedGuess
-                                    dispatch (GameStateUpdated Won)
-                                else
-                                    dispatch AddedGuess
-                )
-                prop.onTextChange (GuessChanged >> dispatch)
-                prop.maxLength MAX_WORD_LENGTH
-                prop.disabled (
-                    match model.State with
-                    | InProgress -> false
-                    | _ -> true
-                )
+        Bulma.container [
+            Bulma.box [
+                Bulma.columns [
+                    columns.isCentered
+                    prop.children [
+                        Html.ul [
+                            Bulma.field.div (
+                                model.Guesses |> Array.map (fun x -> 
+                                    Html.li [
+                                        Html.span [
+                                            prop.children [
+                                                Html.h2 [
+                                                    prop.text x.UserGuess 
+                                                ]
+
+                                                let colored = 
+                                                    x.ColoredGuess
+                                                    |> Array.map (fun c ->
+                                                        match c with
+                                                        | Green -> "🟩"
+                                                        | Yellow -> "🟨"
+                                                        | Black -> "⬛️"
+                                                    ) 
+                                                    |> String.concat ""
+                                                Html.h2 colored
+                                            ]
+                                        ]
+                                    ]
+                                )
+                            )
+                        ]
+                    ]
+                ]
             ]
 
-            Html.ul [
-                Html.div (
-                    model.Guesses |> Array.map (fun x -> 
-                        Html.li [
-                            Html.span [
-                                prop.children [
-                                    Html.h2 x.UserGuess 
-                                    let colored = 
-                                        x.ColoredGuess
-                                        |> Array.map (fun c ->
-                                            match c with
-                                            | Green -> "🟩"
-                                            | Yellow -> "🟨"
-                                            | Black -> "⬛️"
-                                        ) 
-                                        |> String.concat ""
-                                    Html.h2 colored
-                                ]
-                            ]
-                        ]
+            Bulma.footer [
+                Html.h1 [
+                    prop.hidden (model.State = InProgress)
+                    prop.text $"Answer: {model.Answer}"
+                ]
+
+                Bulma.input.text [
+                    prop.autoFocus true
+                    prop.onKeyUp (fun key -> 
+                        if key.code = "Enter" then
+                            if model.Guess |> isWordInList then
+                                if model.Tries = MAX_TRIES then
+                                    dispatch AddedGuess
+                                    dispatch (GameStateUpdated Lost)
+                                else
+                                    if model.Guess = model.Answer then
+                                        dispatch AddedGuess
+                                        dispatch (GameStateUpdated Won)
+                                    else
+                                        dispatch AddedGuess
                     )
-                )
+                    prop.onTextChange (GuessChanged >> dispatch)
+                    prop.maxLength MAX_WORD_LENGTH
+                    prop.disabled (
+                        match model.State with
+                        | InProgress -> false
+                        | _ -> true
+                    )
+                ]
             ]
         ]
 
