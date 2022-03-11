@@ -57,11 +57,11 @@ let asColored (answer: string) (guess: string) =
     let guesses = guess |> Seq.toArray
     let r = 
         guesses
-        |> Array.mapi (fun i _ -> 
-            if answer.IndexOf(guess[i]) = -1 then
+        |> Array.mapi (fun i x -> 
+            if answer.IndexOf(x) = -1 then
                 'R'
             else
-                if guess[i] = answer[i] then
+                if x = answer[i] then
                     'G'
                 else
                     'Y'       
