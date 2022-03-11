@@ -99,79 +99,94 @@ module View =
     let mainView () = 
         let model, dispatch = React.useElmish(init, update, [||])
         Bulma.container [
-            Bulma.title "Feodle - A barebone, breadboad minimal Wordle"
 
-            Bulma.box [
-                Bulma.columns [
-                    columns.isCentered
+            prop.children [
+
+                Html.a [
+                    prop.href "https://github.com/modotte/Feodle"
                     prop.children [
-                        Html.ul [
-                            Bulma.field.div (
-                                model.Guesses |> Array.map (fun x -> 
-                                    Html.li [
-                                        Html.span [
-                                            prop.children [
-                                                Html.h2 [
-                                                    prop.text x.UserGuess 
-                                                ]
-
-                                                let colored = 
-                                                    x.ColoredGuess
-                                                    |> Array.map (fun c ->
-                                                        match c with
-                                                        | Green -> "🟩"
-                                                        | Yellow -> "🟨"
-                                                        | Black -> "⬛️"
-                                                    ) 
-                                                    |> String.concat ""
-                                                Html.h2 colored
-                                            ]
-                                        ]
-                                    ]
-                                )
-                            )
+                        Html.img [
+                            prop.classes [ "attachment-full"; "size-full" ]
+                            prop.alt "Fork me on Github"
+                            prop.src "https://github.blog/wp-content/uploads/2008/12/forkme_left_green_007200.png?resize=149%2C149"
                         ]
                     ]
                 ]
-            ]
 
-            Html.h1 [
-                prop.hidden (model.State = InProgress)
-                prop.text $"Answer: {model.Answer}"
-            ]
-            Bulma.field.div [
-                field.isGrouped
-                field.isGroupedCentered
+                Bulma.title "Feodle - A barebone, breadboad minimal Wordle"
 
-                prop.children [
+                Bulma.box [
+                    Bulma.columns [
+                        columns.isCentered
+                        prop.children [
+                            Html.ul [
+                                Bulma.field.div (
+                                    model.Guesses |> Array.map (fun x -> 
+                                        Html.li [
+                                            Html.span [
+                                                prop.children [
+                                                    Html.h2 [
+                                                        prop.text x.UserGuess 
+                                                    ]
 
-                    match model.State with
-                    | InProgress -> 
-                        Bulma.input.text [
-                            prop.valueOrDefault model.CurrentGuess
-                            prop.autoFocus true
-                            prop.onKeyUp (fun key -> 
-                                if key.code = "Enter" then
-                                    if model.CurrentGuess |> isWordInList then
-                                        if model.Tries = MAX_TRIES then
-                                            dispatch AddedGuess
-                                            dispatch (GameStateUpdated Lost)
-                                        else
-                                            if model.CurrentGuess = model.Answer then
+                                                    let colored = 
+                                                        x.ColoredGuess
+                                                        |> Array.map (fun c ->
+                                                            match c with
+                                                            | Green -> "🟩"
+                                                            | Yellow -> "🟨"
+                                                            | Black -> "⬛️"
+                                                        ) 
+                                                        |> String.concat ""
+                                                    Html.h2 colored
+                                                ]
+                                            ]
+                                        ]
+                                    )
+                                )
+                            ]
+                        ]
+                    ]
+                ]
+
+                Html.h1 [
+                    prop.hidden (model.State = InProgress)
+                    prop.text $"Answer: {model.Answer}"
+                ]
+                Bulma.field.div [
+                    field.isGrouped
+                    field.isGroupedCentered
+
+                    prop.children [
+
+                        match model.State with
+                        | InProgress -> 
+                            Bulma.input.text [
+                                prop.valueOrDefault model.CurrentGuess
+                                prop.autoFocus true
+                                prop.onKeyUp (fun key -> 
+                                    if key.code = "Enter" then
+                                        if model.CurrentGuess |> isWordInList then
+                                            if model.Tries = MAX_TRIES then
                                                 dispatch AddedGuess
-                                                dispatch (GameStateUpdated Won)
+                                                dispatch (GameStateUpdated Lost)
                                             else
-                                                dispatch AddedGuess
-                            )
-                            prop.onTextChange (GuessChanged >> dispatch)
-                            prop.maxLength MAX_WORD_LENGTH
-                        ]
-                    | _ ->
-                        Bulma.button.button [
-                            color.isSuccess
-                            prop.text "Reset and play again!"
-                            prop.onClick (fun _ -> dispatch ResetGame)
-                        ]
+                                                if model.CurrentGuess = model.Answer then
+                                                    dispatch AddedGuess
+                                                    dispatch (GameStateUpdated Won)
+                                                else
+                                                    dispatch AddedGuess
+                                )
+                                prop.onTextChange (GuessChanged >> dispatch)
+                                prop.maxLength MAX_WORD_LENGTH
+                            ]
+                        | _ ->
+                            Bulma.button.button [
+                                color.isSuccess
+                                prop.text "Reset and play again!"
+                                prop.onClick (fun _ -> dispatch ResetGame)
+                            ]
+                    ]
                 ]
             ]
         ]
