@@ -15,17 +15,18 @@ let [<Literal>] MAX_WORD_LENGTH = 5
 let words = [|
     "cargo"
     "mango"
-    "dafny"
     "fruit"
     "cycle"
-    "darks"
     "white"
     "later"
     "color"
     "pedal"
-    "coton"
     "radar"
     "blues"
+    "annal"
+    "union"
+    "alloy"
+    "banal"
 |]
 
 type GameState = Lost | InProgress | Won
@@ -52,12 +53,8 @@ let randomChoiceOf (choices: string array) =
 
 let init = { Guesses = [||]; Guess = ""; Tries = 1; Answer = randomChoiceOf words; State = InProgress }, Cmd.none
 
-let simpleValidate (answer: string) (letter: char) = if answer.Contains(letter) then 'Y' else 'B'
-
 let asColored (answer: string) (guess: string) =
     let guesses = guess |> Seq.toArray
-    let occurences = guesses |> Seq.countBy id |> Seq.toArray
-    let isWithDuplicates occurences = occurences |> Array.forall (fun x -> snd x <> 1)
     let r = 
         guesses
         |> Array.mapi (fun i _ -> 
@@ -71,10 +68,6 @@ let asColored (answer: string) (guess: string) =
         ) 
 
     new string(r)
-
-
-
-
 
 let update message model =
     match message with
