@@ -40,7 +40,7 @@ type Entry = {
 }
 type Model = {
     Guesses: Entry array
-    Guess: string
+    CurrentGuess: string
     Tries: int
     Answer: string
     State: GameState
@@ -57,7 +57,7 @@ let randomChoiceOf (choices: string array) =
 
 let init = { 
     Guesses = [||]
-    Guess = ""
+    CurrentGuess = ""
     Tries = 1
     Answer = randomChoiceOf words
     State = InProgress }, Cmd.none
@@ -78,14 +78,15 @@ let asColored (answer: string) (guess: string) =
 
 let update message model =
     match message with
-    | GuessChanged answer -> { model with Guess = answer }, Cmd.none
+    | GuessChanged answer -> { model with CurrentGuess = answer }, Cmd.none
     | AddedGuess -> 
         { model with
             Guesses = [|{
-                UserGuess = model.Guess
-                ColoredGuess = asColored model.Answer model.Guess
+                UserGuess = model.CurrentGuess
+                ColoredGuess = asColored model.Answer model.CurrentGuess
             }|] |> Array.append model.Guesses
-            Tries = model.Tries + 1 
+            Tries = model.Tries + 1
+            CurrentGuess = ""
         }, Cmd.none
     | GameStateUpdated state -> { model with State = state }, Cmd.none
 
@@ -130,22 +131,23 @@ module View =
                 ]
             ]
 
-            Bulma.footer [
+            Bulma.field.div [
                 Html.h1 [
                     prop.hidden (model.State = InProgress)
                     prop.text $"Answer: {model.Answer}"
                 ]
 
                 Bulma.input.text [
+                    prop.valueOrDefault model.CurrentGuess
                     prop.autoFocus true
                     prop.onKeyUp (fun key -> 
                         if key.code = "Enter" then
-                            if model.Guess |> isWordInList then
+                            if model.CurrentGuess |> isWordInList then
                                 if model.Tries = MAX_TRIES then
                                     dispatch AddedGuess
                                     dispatch (GameStateUpdated Lost)
                                 else
-                                    if model.Guess = model.Answer then
+                                    if model.CurrentGuess = model.Answer then
                                         dispatch AddedGuess
                                         dispatch (GameStateUpdated Won)
                                     else
