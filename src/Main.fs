@@ -21,62 +21,46 @@ let words = [|
     "darks"
     "white"
     "later"
+    "color"
+    "pedal"
+    "coton"
 |]
 
 type GameState = Lost | InProgress | Won
 
 type Color = Red | Green | Yellow
 type Entry = {
-    Letters: string
-    ColoredLetters: string
+    UserGuess: string
+    ColoredGuess: string
 }
 type Model = {
-    Entries: Entry array
-    EntryAnswer: string
+    Guesses: Entry array
+    Guess: string
     Tries: int
-    CorrectAnswer: string
+    Answer: string
     State: GameState
 }
 
 type Message =
-    | EntryChanged of string
-    | AddedEntry
-    | TriedNext
+    | GuessChanged of string
+    | AddedGuess
     | GameStateUpdated of GameState
 
 let randomChoiceOf (choices: string array) =
     let index = Random().Next(choices |> Array.length)
     choices[index]
 
-let init = { Entries = [||]; EntryAnswer = ""; Tries = 1; CorrectAnswer = randomChoiceOf words; State = InProgress }, Cmd.none
+let init = { Guesses = [||]; Guess = ""; Tries = 1; Answer = randomChoiceOf words; State = InProgress }, Cmd.none
 
-let asColored (correctAnswer: string) (letters: string) =
-    if letters = correctAnswer then
-        "GGGGGG"
-    else
-        let r =
-            letters
-            |> Seq.toArray
-            |> Array.mapi (
-                fun i x ->
-                    if x = correctAnswer[i] then
-                        'G'
-                    else
-                        if correctAnswer.Contains(x) then
-                            'Y'
-                        else 'R'
-            )
-
-        new string(r)
-
+let asColored (answer: string) (guess: string) =
+    ""
 let update message model =
     match message with
-    | EntryChanged answer -> { model with EntryAnswer = answer }, Cmd.none
-    | AddedEntry -> 
+    | GuessChanged answer -> { model with Guess = answer }, Cmd.none
+    | AddedGuess -> 
         { model with
-            Entries = [|{ Letters = model.EntryAnswer; ColoredLetters = asColored model.CorrectAnswer model.EntryAnswer }|] |> Array.append model.Entries
+            Guesses = [|{ UserGuess = model.Guess; ColoredGuess = asColored model.Answer model.Guess }|] |> Array.append model.Guesses
             Tries = model.Tries + 1 }, Cmd.none
-    | TriedNext -> failwith "Not Implemented"
     | GameStateUpdated state -> { model with State = state }, Cmd.none
 
 let isWordInList answer = words |> Array.contains answer
@@ -87,24 +71,24 @@ module View =
         let model, dispatch = React.useElmish(init, update, [||])
         Html.div [
             Html.h1 $"Tries: {model.Tries - 1}"
-            Html.h1 $"Answer: {model.CorrectAnswer}"
+            Html.h1 $"Answer: {model.Answer}"
             Html.h1 $"State: {model.State}"
             Html.input [
                 prop.autoFocus true
                 prop.onKeyUp (fun key -> 
                     if key.code = "Enter" then
-                        if model.EntryAnswer |> isWordInList then
+                        if model.Guess |> isWordInList then
                             if model.Tries = MAX_TRIES then
-                                dispatch AddedEntry
+                                dispatch AddedGuess
                                 dispatch (GameStateUpdated Lost)
                             else
-                                if model.EntryAnswer = model.CorrectAnswer then
-                                    dispatch AddedEntry
+                                if model.Guess = model.Answer then
+                                    dispatch AddedGuess
                                     dispatch (GameStateUpdated Won)
                                 else
-                                    dispatch AddedEntry
+                                    dispatch AddedGuess
                 )
-                prop.onTextChange (EntryChanged >> dispatch)
+                prop.onTextChange (GuessChanged >> dispatch)
                 prop.maxLength MAX_WORD_LENGTH
                 prop.disabled (
                     match model.State with
@@ -115,20 +99,17 @@ module View =
 
             Html.ul [
                 Html.div (
-                    model.Entries |> Array.map (fun a -> 
+                    model.Guesses |> Array.map (fun x -> 
                         Html.li [
                             Html.span [
                                 prop.children [
-                                    Html.h2 a.Letters 
-                                    Html.h2 a.ColoredLetters
+                                    Html.h2 x.UserGuess 
+                                    Html.h2 x.ColoredGuess
                                 ]
                             ]
                         ]
                     )
                 )
-                Html.li [
-                    Html.h2 model.EntryAnswer
-                ]
             ]
         ]
 
