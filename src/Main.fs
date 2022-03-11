@@ -50,6 +50,7 @@ type Message =
     | GuessChanged of string
     | AddedGuess
     | GameStateUpdated of GameState
+    | ResetGame
 
 let randomChoiceOf (choices: string array) =
     let index = Random().Next(choices |> Array.length)
@@ -89,6 +90,7 @@ let update message model =
             CurrentGuess = ""
         }, Cmd.none
     | GameStateUpdated state -> { model with State = state }, Cmd.none
+    | ResetGame -> { fst init with Answer = randomChoiceOf words }, Cmd.none
 
 let isWordInList answer = words |> Array.contains answer
 
@@ -131,35 +133,43 @@ module View =
                 ]
             ]
 
+            Html.h1 [
+                prop.hidden (model.State = InProgress)
+                prop.text $"Answer: {model.Answer}"
+            ]
             Bulma.field.div [
-                Html.h1 [
-                    prop.hidden (model.State = InProgress)
-                    prop.text $"Answer: {model.Answer}"
-                ]
+                field.isGrouped
+                field.isGroupedCentered
 
-                Bulma.input.text [
-                    prop.valueOrDefault model.CurrentGuess
-                    prop.autoFocus true
-                    prop.onKeyUp (fun key -> 
-                        if key.code = "Enter" then
-                            if model.CurrentGuess |> isWordInList then
-                                if model.Tries = MAX_TRIES then
-                                    dispatch AddedGuess
-                                    dispatch (GameStateUpdated Lost)
-                                else
-                                    if model.CurrentGuess = model.Answer then
-                                        dispatch AddedGuess
-                                        dispatch (GameStateUpdated Won)
-                                    else
-                                        dispatch AddedGuess
-                    )
-                    prop.onTextChange (GuessChanged >> dispatch)
-                    prop.maxLength MAX_WORD_LENGTH
-                    prop.disabled (
-                        match model.State with
-                        | InProgress -> false
-                        | _ -> true
-                    )
+                prop.children [
+
+                    match model.State with
+                    | InProgress -> 
+                        Bulma.input.text [
+                            prop.valueOrDefault model.CurrentGuess
+                            prop.autoFocus true
+                            prop.onKeyUp (fun key -> 
+                                if key.code = "Enter" then
+                                    if model.CurrentGuess |> isWordInList then
+                                        if model.Tries = MAX_TRIES then
+                                            dispatch AddedGuess
+                                            dispatch (GameStateUpdated Lost)
+                                        else
+                                            if model.CurrentGuess = model.Answer then
+                                                dispatch AddedGuess
+                                                dispatch (GameStateUpdated Won)
+                                            else
+                                                dispatch AddedGuess
+                            )
+                            prop.onTextChange (GuessChanged >> dispatch)
+                            prop.maxLength MAX_WORD_LENGTH
+                        ]
+                    | _ ->
+                        Bulma.button.button [
+                            color.isSuccess
+                            prop.text "Reset and play again!"
+                            prop.onClick (fun _ -> dispatch ResetGame)
+                        ]
                 ]
             ]
         ]
