@@ -84,7 +84,8 @@ let update message model =
                 UserGuess = model.Guess
                 ColoredGuess = asColored model.Answer model.Guess
             }|] |> Array.append model.Guesses
-            Tries = model.Tries + 1 }, Cmd.none
+            Tries = model.Tries + 1 
+        }, Cmd.none
     | GameStateUpdated state -> { model with State = state }, Cmd.none
 
 let isWordInList answer = words |> Array.contains answer
