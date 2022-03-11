@@ -52,9 +52,22 @@ let init = { Entries = [||]; EntryAnswer = ""; Tries = 1; CorrectAnswer = random
 
 let asColored (correctAnswer: string) (letters: string) =
     if letters = correctAnswer then
-        "G G G G G G"
+        "GGGGGG"
     else
-        ""
+        let r =
+            letters
+            |> Seq.toArray
+            |> Array.mapi (
+                fun i x ->
+                    if x = correctAnswer[i] then
+                        'G'
+                    else
+                        if not (correctAnswer.Contains(x)) then
+                            'R'
+                        else 'Y'
+            )
+
+        new string(r)
 
 let update message model =
     match message with
