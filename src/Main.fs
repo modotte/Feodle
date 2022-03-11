@@ -17,6 +17,7 @@ let words = [|
     "mango"
     "fruit"
     "cycle"
+    "black"
     "white"
     "later"
     "color"
@@ -29,10 +30,12 @@ let words = [|
     "banal"
 |]
 
+type Color = Black | Yellow | Green
+
 type GameState = Lost | InProgress | Won
 type Entry = {
     UserGuess: string
-    ColoredGuess: string
+    ColoredGuess: Color array
 }
 type Model = {
     Guesses: Entry array
@@ -51,31 +54,36 @@ let randomChoiceOf (choices: string array) =
     let index = Random().Next(choices |> Array.length)
     choices[index]
 
-let init = { Guesses = [||]; Guess = ""; Tries = 1; Answer = randomChoiceOf words; State = InProgress }, Cmd.none
+let init = { 
+    Guesses = [||]
+    Guess = ""
+    Tries = 1
+    Answer = randomChoiceOf words
+    State = InProgress }, Cmd.none
 
 let asColored (answer: string) (guess: string) =
     // TODO: Handle duplicate letters in answer and guess
-    let guesses = guess |> Seq.toArray
-    let r = 
-        guesses
-        |> Array.mapi (fun i x -> 
-            if answer.IndexOf(x) = -1 then
-                'R'
+    guess
+    |> Seq.toArray
+    |> Array.mapi (fun i x -> 
+        if answer.IndexOf(x) = -1 then
+            Black
+        else
+            if x = answer[i] then
+                Green
             else
-                if x = answer[i] then
-                    'G'
-                else
-                    'Y'       
-        ) 
-
-    new string(r)
+                Yellow
+    )
 
 let update message model =
     match message with
     | GuessChanged answer -> { model with Guess = answer }, Cmd.none
     | AddedGuess -> 
         { model with
-            Guesses = [|{ UserGuess = model.Guess; ColoredGuess = asColored model.Answer model.Guess }|] |> Array.append model.Guesses
+            Guesses = [|{
+                UserGuess = model.Guess
+                ColoredGuess = asColored model.Answer model.Guess
+            }|] |> Array.append model.Guesses
             Tries = model.Tries + 1 }, Cmd.none
     | GameStateUpdated state -> { model with State = state }, Cmd.none
 
@@ -86,9 +94,10 @@ module View =
     let mainView () = 
         let model, dispatch = React.useElmish(init, update, [||])
         Html.div [
-            Html.h1 $"Tries: {model.Tries - 1}"
-            Html.h1 $"Answer: {model.Answer}"
-            Html.h1 $"State: {model.State}"
+            Html.h1 [
+                prop.hidden (model.State = InProgress)
+                prop.text $"Answer: {model.Answer}"
+            ]
             Html.input [
                 prop.autoFocus true
                 prop.onKeyUp (fun key -> 
@@ -120,7 +129,16 @@ module View =
                             Html.span [
                                 prop.children [
                                     Html.h2 x.UserGuess 
-                                    Html.h2 x.ColoredGuess
+                                    let colored = 
+                                        x.ColoredGuess
+                                        |> Array.map (fun c ->
+                                            match c with
+                                            | Green -> "🟩"
+                                            | Yellow -> "🟨"
+                                            | Black -> "⬛️"
+                                        ) 
+                                        |> String.concat ""
+                                    Html.h2 colored
                                 ]
                             ]
                         ]
