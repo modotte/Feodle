@@ -50,7 +50,7 @@ type Message =
     | GuessChanged of string
     | AddedGuess
     | GameStateUpdated of GameState
-    | ResetGame
+    | GameReset
 
 let randomChoiceOf (choices: string array) =
     let index = Random().Next(choices |> Array.length)
@@ -90,7 +90,7 @@ let update message model =
             CurrentGuess = ""
         }, Cmd.none
     | GameStateUpdated state -> { model with State = state }, Cmd.none
-    | ResetGame -> { fst init with Answer = randomChoiceOf words }, Cmd.none
+    | GameReset -> { fst init with Answer = randomChoiceOf words }, Cmd.none
 
 let isWordInList answer = words |> Array.contains answer
 
@@ -184,7 +184,7 @@ module View =
                             Bulma.button.button [
                                 color.isSuccess
                                 prop.text "Reset and play again!"
-                                prop.onClick (fun _ -> dispatch ResetGame)
+                                prop.onClick (fun _ -> dispatch GameReset)
                             ]
                     ]
                 ]
