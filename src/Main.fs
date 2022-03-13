@@ -168,6 +168,7 @@ module View =
                         prop.onKeyUp (fun key -> handleGuess key model dispatch)
                         prop.onTextChange (GuessChanged >> dispatch)
                         prop.maxLength MAX_WORD_LENGTH
+                        prop.placeholder "Enter 5 letter word guess"
                     ]
                 | _ ->
                     Bulma.button.button [
