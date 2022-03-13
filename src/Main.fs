@@ -93,6 +93,19 @@ let update message model =
     | GameReset -> { fst init with Answer = randomChoiceOf words }, Cmd.none
 
 let isWordInList answer = words |> Array.contains answer
+let handleGuess (key: Types.KeyboardEvent) model dispatch =
+    if key.code = "Enter" then
+        if model.CurrentGuess |> isWordInList then
+            if model.Tries = MAX_TRIES then
+                dispatch AddedGuess
+                dispatch (GameStateUpdated Lost)
+            else
+                if model.CurrentGuess = model.Answer then
+                    dispatch AddedGuess
+                    dispatch (GameStateUpdated Won)
+                else
+                    dispatch AddedGuess
+
 
 module View =
     [<ReactComponent>]
@@ -164,19 +177,7 @@ module View =
                             Bulma.input.text [
                                 prop.valueOrDefault model.CurrentGuess
                                 prop.autoFocus true
-                                prop.onKeyUp (fun key -> 
-                                    if key.code = "Enter" then
-                                        if model.CurrentGuess |> isWordInList then
-                                            if model.Tries = MAX_TRIES then
-                                                dispatch AddedGuess
-                                                dispatch (GameStateUpdated Lost)
-                                            else
-                                                if model.CurrentGuess = model.Answer then
-                                                    dispatch AddedGuess
-                                                    dispatch (GameStateUpdated Won)
-                                                else
-                                                    dispatch AddedGuess
-                                )
+                                prop.onKeyUp (fun key -> handleGuess key model dispatch)
                                 prop.onTextChange (GuessChanged >> dispatch)
                                 prop.maxLength MAX_WORD_LENGTH
                             ]
