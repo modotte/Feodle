@@ -108,23 +108,25 @@ let handleGuess (key: Types.KeyboardEvent) model dispatch =
 
 
 module View =
+    let makeGithubForkBadge =
+        Html.a [
+            prop.href "https://github.com/modotte/Feodle"
+            prop.children [
+                Html.img [
+                    prop.classes [ "attachment-full"; "size-full" ]
+                    prop.alt "Fork me on Github"
+                    prop.src "https://github.blog/wp-content/uploads/2008/12/forkme_left_green_007200.png?resize=149%2C149"
+                ]
+            ]
+        ]
+
     [<ReactComponent>]
     let mainView () = 
         let model, dispatch = React.useElmish(init, update, [||])
         Bulma.container [
 
             prop.children [
-
-                Html.a [
-                    prop.href "https://github.com/modotte/Feodle"
-                    prop.children [
-                        Html.img [
-                            prop.classes [ "attachment-full"; "size-full" ]
-                            prop.alt "Fork me on Github"
-                            prop.src "https://github.blog/wp-content/uploads/2008/12/forkme_left_green_007200.png?resize=149%2C149"
-                        ]
-                    ]
-                ]
+                makeGithubForkBadge
 
                 Bulma.title "Feodle - A barebone, breadboad minimal Wordle by modotte"
 
@@ -142,16 +144,15 @@ module View =
                                                         prop.text x.UserGuess 
                                                     ]
 
-                                                    let colored = 
-                                                        x.ColoredGuess
-                                                        |> Array.map (fun c ->
-                                                            match c with
-                                                            | Green -> "🟩"
-                                                            | Yellow -> "🟨"
-                                                            | Black -> "⬛️"
-                                                        ) 
-                                                        |> String.concat ""
-                                                    Html.h2 colored
+                                                    x.ColoredGuess
+                                                    |> Array.map (fun c ->
+                                                        match c with
+                                                        | Green -> "🟩"
+                                                        | Yellow -> "🟨"
+                                                        | Black -> "⬛️"
+                                                    ) 
+                                                    |> String.concat ""
+                                                    |> Html.h2
                                                 ]
                                             ]
                                         ]
