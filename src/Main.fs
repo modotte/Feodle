@@ -119,6 +119,17 @@ module View =
             ]
         ]
 
+    let makeColoredBoxes colors =
+        colors
+        |> Array.map (fun c ->
+            match c with
+            | Green -> "🟩"
+            | Yellow -> "🟨"
+            | Black -> "⬛️"
+        ) 
+        |> String.concat ""
+        |> Html.h2
+
     let makeGuessesList model =
         Bulma.box [
             Bulma.columns [
@@ -131,16 +142,7 @@ module View =
                                     Html.span [
                                         prop.children [
                                             Html.h2 entry.UserGuess
-
-                                            entry.ColoredGuess
-                                            |> Array.map (fun c ->
-                                                match c with
-                                                | Green -> "🟩"
-                                                | Yellow -> "🟨"
-                                                | Black -> "⬛️"
-                                            ) 
-                                            |> String.concat ""
-                                            |> Html.h2
+                                            makeColoredBoxes entry.ColoredGuess
                                         ]
                                     ]
                                 ]
