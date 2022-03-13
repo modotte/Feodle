@@ -59,20 +59,25 @@ let asColored (answer: string) (guess: string) =
                 Yellow
     )
 
+let withGuessChanged answer model = { model with CurrentGuess = answer }, Cmd.none
+let withAddedGuess model =
+    { model with
+        Guesses = [|{
+            UserGuess = model.CurrentGuess
+            ColoredGuess = asColored model.Answer model.CurrentGuess
+        }|] |> Array.append model.Guesses
+        Tries = model.Tries + 1
+        CurrentGuess = ""
+    }, Cmd.none
+let withGameStateUpdated state model = { model with State = state }, Cmd.none
+let withGameReset model = { fst init with Answer = randomChoiceOf Words.words }, Cmd.none
+
 let update message model =
     match message with
-    | GuessChanged answer -> { model with CurrentGuess = answer }, Cmd.none
-    | AddedGuess -> 
-        { model with
-            Guesses = [|{
-                UserGuess = model.CurrentGuess
-                ColoredGuess = asColored model.Answer model.CurrentGuess
-            }|] |> Array.append model.Guesses
-            Tries = model.Tries + 1
-            CurrentGuess = ""
-        }, Cmd.none
-    | GameStateUpdated state -> { model with State = state }, Cmd.none
-    | GameReset -> { fst init with Answer = randomChoiceOf Words.words }, Cmd.none
+    | GuessChanged answer -> withGuessChanged answer model
+    | AddedGuess -> withAddedGuess model
+    | GameStateUpdated state -> withGameStateUpdated state model
+    | GameReset -> withGameReset model
 
 let isWordInList answer = Words.words |> Array.contains answer
 let handleGuess (key: Types.KeyboardEvent) model dispatch =
