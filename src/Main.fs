@@ -169,7 +169,7 @@ module View =
             prop.children [
                 makeGithubForkBadge
 
-                Bulma.title "Feodle - A barebone, breadboad minimal Wordle by modotte"
+                Bulma.title "Feodle - A barebone Wordle implementation for practicing"
                 makeGuessesList model
 
                 Html.h1 [
