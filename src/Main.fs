@@ -14,7 +14,6 @@ importSideEffects "./styles/global.scss"
 let [<Literal>] MAX_TRIES = 6
 
 type Color = Black | Yellow | Green
-
 type GameState = Lost | InProgress | Won
 type Entry = {
     UserGuess: string
