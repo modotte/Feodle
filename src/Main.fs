@@ -1,3 +1,4 @@
+// Copyright (c) 2022 Modotte
 module Main
 
 open System
