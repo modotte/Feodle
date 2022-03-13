@@ -106,7 +106,6 @@ let handleGuess (key: Types.KeyboardEvent) model dispatch =
                 else
                     dispatch AddedGuess
 
-
 module View =
     let makeGithubForkBadge =
         Html.a [
@@ -120,6 +119,63 @@ module View =
             ]
         ]
 
+    let makeGuessesList model =
+        Bulma.box [
+            Bulma.columns [
+                columns.isCentered
+                prop.children [
+                    Html.ul [
+                        Bulma.field.div (
+                            model.Guesses |> Array.map (fun entry -> 
+                                Html.li [
+                                    Html.span [
+                                        prop.children [
+                                            Html.h2 entry.UserGuess
+
+                                            entry.ColoredGuess
+                                            |> Array.map (fun c ->
+                                                match c with
+                                                | Green -> "🟩"
+                                                | Yellow -> "🟨"
+                                                | Black -> "⬛️"
+                                            ) 
+                                            |> String.concat ""
+                                            |> Html.h2
+                                        ]
+                                    ]
+                                ]
+                            )
+                        )
+                    ]
+                ]
+            ]
+        ]
+
+    let makeGuessEntry model dispatch =
+        Bulma.field.div [
+            field.isGrouped
+            field.isGroupedCentered
+
+            prop.children [
+
+                match model.State with
+                | InProgress -> 
+                    Bulma.input.text [
+                        prop.valueOrDefault model.CurrentGuess
+                        prop.autoFocus true
+                        prop.onKeyUp (fun key -> handleGuess key model dispatch)
+                        prop.onTextChange (GuessChanged >> dispatch)
+                        prop.maxLength MAX_WORD_LENGTH
+                    ]
+                | _ ->
+                    Bulma.button.button [
+                        color.isSuccess
+                        prop.text "Reset and play again!"
+                        prop.onClick (fun _ -> dispatch GameReset)
+                    ]
+            ]
+        ]
+
     [<ReactComponent>]
     let mainView () = 
         let model, dispatch = React.useElmish(init, update, [||])
@@ -129,65 +185,14 @@ module View =
                 makeGithubForkBadge
 
                 Bulma.title "Feodle - A barebone, breadboad minimal Wordle by modotte"
-
-                Bulma.box [
-                    Bulma.columns [
-                        columns.isCentered
-                        prop.children [
-                            Html.ul [
-                                Bulma.field.div (
-                                    model.Guesses |> Array.map (fun entry -> 
-                                        Html.li [
-                                            Html.span [
-                                                prop.children [
-                                                    Html.h2 entry.UserGuess
-
-                                                    entry.ColoredGuess
-                                                    |> Array.map (fun c ->
-                                                        match c with
-                                                        | Green -> "🟩"
-                                                        | Yellow -> "🟨"
-                                                        | Black -> "⬛️"
-                                                    ) 
-                                                    |> String.concat ""
-                                                    |> Html.h2
-                                                ]
-                                            ]
-                                        ]
-                                    )
-                                )
-                            ]
-                        ]
-                    ]
-                ]
+                makeGuessesList model
 
                 Html.h1 [
                     prop.hidden (model.State = InProgress)
                     prop.text $"Answer: {model.Answer}"
                 ]
-                Bulma.field.div [
-                    field.isGrouped
-                    field.isGroupedCentered
 
-                    prop.children [
-
-                        match model.State with
-                        | InProgress -> 
-                            Bulma.input.text [
-                                prop.valueOrDefault model.CurrentGuess
-                                prop.autoFocus true
-                                prop.onKeyUp (fun key -> handleGuess key model dispatch)
-                                prop.onTextChange (GuessChanged >> dispatch)
-                                prop.maxLength MAX_WORD_LENGTH
-                            ]
-                        | _ ->
-                            Bulma.button.button [
-                                color.isSuccess
-                                prop.text "Reset and play again!"
-                                prop.onClick (fun _ -> dispatch GameReset)
-                            ]
-                    ]
-                ]
+                makeGuessEntry model dispatch
             ]
         ]
 
