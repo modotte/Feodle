@@ -12,24 +12,6 @@ open Elmish
 importSideEffects "./styles/global.scss"
 
 let [<Literal>] MAX_TRIES = 6
-let [<Literal>] MAX_WORD_LENGTH = 5
-let words = [|
-    "cargo"
-    "mango"
-    "fruit"
-    "cycle"
-    "black"
-    "white"
-    "later"
-    "color"
-    "pedal"
-    "radar"
-    "blues"
-    "annal"
-    "union"
-    "alloy"
-    "banal"
-|]
 
 type Color = Black | Yellow | Green
 
@@ -60,7 +42,7 @@ let init = {
     Guesses = [||]
     CurrentGuess = ""
     Tries = 1
-    Answer = randomChoiceOf words
+    Answer = randomChoiceOf Words.words
     State = InProgress }, Cmd.none
 
 let asColored (answer: string) (guess: string) =
@@ -90,9 +72,9 @@ let update message model =
             CurrentGuess = ""
         }, Cmd.none
     | GameStateUpdated state -> { model with State = state }, Cmd.none
-    | GameReset -> { fst init with Answer = randomChoiceOf words }, Cmd.none
+    | GameReset -> { fst init with Answer = randomChoiceOf Words.words }, Cmd.none
 
-let isWordInList answer = words |> Array.contains answer
+let isWordInList answer = Words.words |> Array.contains answer
 let handleGuess (key: Types.KeyboardEvent) model dispatch =
     if key.code = "Enter" then
         if model.CurrentGuess |> isWordInList then
@@ -167,7 +149,7 @@ module View =
                         prop.autoFocus true
                         prop.onKeyUp (fun key -> handleGuess key model dispatch)
                         prop.onTextChange (GuessChanged >> dispatch)
-                        prop.maxLength MAX_WORD_LENGTH
+                        prop.maxLength Words.MAX_WORD_LENGTH
                         prop.placeholder "Enter 5 letter word guess"
                     ]
                 | _ ->
