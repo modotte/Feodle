@@ -118,25 +118,26 @@ module View =
         |> Html.h2
 
     let makeGuessesList model =
+        Html.ul [
+            Bulma.field.div (
+                model.Guesses |> Array.map (fun entry -> 
+                    Html.li [
+                        Html.span [
+                            prop.children [
+                                Html.h2 entry.UserGuess
+                                makeColoredBoxes entry.ColoredGuess
+                            ]
+                        ]
+                    ]
+                )
+            )
+        ]
+
+    let makeGuessesView model =
         Bulma.box [
             Bulma.columns [
                 columns.isCentered
-                prop.children [
-                    Html.ul [
-                        Bulma.field.div (
-                            model.Guesses |> Array.map (fun entry -> 
-                                Html.li [
-                                    Html.span [
-                                        prop.children [
-                                            Html.h2 entry.UserGuess
-                                            makeColoredBoxes entry.ColoredGuess
-                                        ]
-                                    ]
-                                ]
-                            )
-                        )
-                    ]
-                ]
+                prop.children [ makeGuessesList model ]
             ]
         ]
 
@@ -175,7 +176,7 @@ module View =
                 makeGithubForkBadge
 
                 Bulma.title "Feodle - A barebone Wordle implementation for practicing"
-                makeGuessesList model
+                makeGuessesView model
 
                 Html.h1 [
                     prop.hidden (model.State = InProgress)
