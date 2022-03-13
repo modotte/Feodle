@@ -136,15 +136,13 @@ module View =
                         prop.children [
                             Html.ul [
                                 Bulma.field.div (
-                                    model.Guesses |> Array.map (fun x -> 
+                                    model.Guesses |> Array.map (fun entry -> 
                                         Html.li [
                                             Html.span [
                                                 prop.children [
-                                                    Html.h2 [
-                                                        prop.text x.UserGuess 
-                                                    ]
+                                                    Html.h2 entry.UserGuess
 
-                                                    x.ColoredGuess
+                                                    entry.ColoredGuess
                                                     |> Array.map (fun c ->
                                                         match c with
                                                         | Green -> "🟩"
