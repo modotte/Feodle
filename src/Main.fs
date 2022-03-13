@@ -35,7 +35,7 @@ type Message =
     | GameReset
 
 let randomChoiceOf (choices: string array) =
-    let index = Random().Next(choices |> Array.length)
+    let index = Random().Next(choices.Length)
     choices[index]
 
 let init = { 
