@@ -2,6 +2,7 @@ source https://www.nuget.org/api/v2
 
 nuget Feliz.Bulma
 nuget Feliz.Router
+nuget Feliz.SweetAlert
 nuget Feliz.UseElmish
 nuget FSharp.Core
 nuget Fable.DateFunctions 3.8.1

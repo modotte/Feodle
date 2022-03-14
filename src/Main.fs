@@ -7,6 +7,7 @@ open Browser
 open Fable.Core.JsInterop
 open Feliz
 open Feliz.Bulma
+open Feliz.SweetAlert
 open Feliz.UseElmish
 open Elmish
 
@@ -29,6 +30,7 @@ type Model = {
 }
 
 type Message =
+    | AlertSent of string
     | GuessChanged of string
     | AddedGuess
     | GameStateUpdated of GameState
@@ -59,6 +61,12 @@ let asColored (answer: string) (guess: string) =
                 Yellow
     )
 
+let withAlertSent (message: string) model = 
+    model, Cmd.Swal.fire ([
+        swal.title message
+        swal.icon.error
+    ])
+
 let withGuessChanged answer model = { model with CurrentGuess = answer }, Cmd.none
 let withAddedGuess model =
     { model with
@@ -74,6 +82,7 @@ let withGameReset () = { fst init with Answer = randomChoiceOf Words.words }, Cm
 
 let update message model =
     match message with
+    | AlertSent message -> withAlertSent message model
     | GuessChanged answer -> withGuessChanged answer model
     | AddedGuess -> withAddedGuess model
     | GameStateUpdated state -> withGameStateUpdated state model
@@ -86,12 +95,21 @@ let handleGuess (key: Types.KeyboardEvent) model dispatch =
             if model.Tries = MAX_TRIES then
                 dispatch AddedGuess
                 dispatch (GameStateUpdated Lost)
+                dispatch (AlertSent $"Correct answer is: {model.Answer}")
+
             else
                 if model.CurrentGuess = model.Answer then
                     dispatch AddedGuess
                     dispatch (GameStateUpdated Won)
                 else
                     dispatch AddedGuess
+
+        elif String.IsNullOrWhiteSpace model.CurrentGuess then
+            dispatch (AlertSent $"Guess cannot be blank!")
+        elif model.CurrentGuess.Length < Words.MAX_WORD_LENGTH then
+            dispatch (AlertSent $"{model.CurrentGuess} is shorter than 5 letters! Please try again with 5 letter word.")
+        else
+            dispatch (AlertSent $"{model.CurrentGuess} is not found in the word list!")
 
 module View =
     let makeGithubForkBadge =
@@ -151,6 +169,7 @@ module View =
                 match model.State with
                 | InProgress -> 
                     Bulma.input.text [
+                        prop.required true
                         prop.valueOrDefault model.CurrentGuess
                         prop.autoFocus true
                         prop.onKeyUp (fun key -> handleGuess key model dispatch)
