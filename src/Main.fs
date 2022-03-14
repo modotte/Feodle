@@ -35,7 +35,7 @@ type Message =
     | GameReset
 
 let randomChoiceOf (choices: string array) =
-    let index = Random().Next(choices |> Array.length)
+    let index = Random().Next(choices.Length)
     choices[index]
 
 let init = { 
@@ -59,20 +59,25 @@ let asColored (answer: string) (guess: string) =
                 Yellow
     )
 
+let withGuessChanged answer model = { model with CurrentGuess = answer }, Cmd.none
+let withAddedGuess model =
+    { model with
+        Guesses = [|{
+            UserGuess = model.CurrentGuess
+            ColoredGuess = asColored model.Answer model.CurrentGuess
+        }|] |> Array.append model.Guesses
+        Tries = model.Tries + 1
+        CurrentGuess = ""
+    }, Cmd.none
+let withGameStateUpdated state model = { model with State = state }, Cmd.none
+let withGameReset = { fst init with Answer = randomChoiceOf Words.words }, Cmd.none
+
 let update message model =
     match message with
-    | GuessChanged answer -> { model with CurrentGuess = answer }, Cmd.none
-    | AddedGuess -> 
-        { model with
-            Guesses = [|{
-                UserGuess = model.CurrentGuess
-                ColoredGuess = asColored model.Answer model.CurrentGuess
-            }|] |> Array.append model.Guesses
-            Tries = model.Tries + 1
-            CurrentGuess = ""
-        }, Cmd.none
-    | GameStateUpdated state -> { model with State = state }, Cmd.none
-    | GameReset -> { fst init with Answer = randomChoiceOf Words.words }, Cmd.none
+    | GuessChanged answer -> withGuessChanged answer model
+    | AddedGuess -> withAddedGuess model
+    | GameStateUpdated state -> withGameStateUpdated state model
+    | GameReset -> withGameReset
 
 let isWordInList answer = Words.words |> Array.contains answer
 let handleGuess (key: Types.KeyboardEvent) model dispatch =
@@ -113,25 +118,26 @@ module View =
         |> Html.h2
 
     let makeGuessesList model =
+        Html.ul [
+            Bulma.field.div (
+                model.Guesses |> Array.map (fun entry -> 
+                    Html.li [
+                        Html.span [
+                            prop.children [
+                                Html.h2 entry.UserGuess
+                                makeColoredBoxes entry.ColoredGuess
+                            ]
+                        ]
+                    ]
+                )
+            )
+        ]
+
+    let makeGuessesView model =
         Bulma.box [
             Bulma.columns [
                 columns.isCentered
-                prop.children [
-                    Html.ul [
-                        Bulma.field.div (
-                            model.Guesses |> Array.map (fun entry -> 
-                                Html.li [
-                                    Html.span [
-                                        prop.children [
-                                            Html.h2 entry.UserGuess
-                                            makeColoredBoxes entry.ColoredGuess
-                                        ]
-                                    ]
-                                ]
-                            )
-                        )
-                    ]
-                ]
+                prop.children [ makeGuessesList model ]
             ]
         ]
 
@@ -169,8 +175,8 @@ module View =
             prop.children [
                 makeGithubForkBadge
 
-                Bulma.title "Feodle - A barebone, breadboad minimal Wordle by modotte"
-                makeGuessesList model
+                Bulma.title "Feodle - A barebone Wordle implementation for practicing"
+                makeGuessesView model
 
                 Html.h1 [
                     prop.hidden (model.State = InProgress)
