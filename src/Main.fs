@@ -70,14 +70,14 @@ let withAddedGuess model =
         CurrentGuess = ""
     }, Cmd.none
 let withGameStateUpdated state model = { model with State = state }, Cmd.none
-let withGameReset = { fst init with Answer = randomChoiceOf Words.words }, Cmd.none
+let withGameReset () = { fst init with Answer = randomChoiceOf Words.words }, Cmd.none
 
 let update message model =
     match message with
     | GuessChanged answer -> withGuessChanged answer model
     | AddedGuess -> withAddedGuess model
     | GameStateUpdated state -> withGameStateUpdated state model
-    | GameReset -> withGameReset
+    | GameReset -> withGameReset ()
 
 let isWordInList answer = Words.words |> Array.contains answer
 let handleGuess (key: Types.KeyboardEvent) model dispatch =
