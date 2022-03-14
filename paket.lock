@@ -21,16 +21,24 @@ NUGET
       Fable.Browser.Event (>= 1.4.4) - restriction: >= netstandard2.0
       Fable.Core (>= 3.0) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.2) - restriction: >= netstandard2.0
-    Fable.Core (3.6.2) - restriction: >= netstandard2.0
+    Fable.Core (3.6.2)
     Fable.DateFunctions (3.8.1)
       Fable.Core (>= 3.1.6) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.2) - restriction: >= netstandard2.0
     Fable.Elmish (3.1) - restriction: >= netstandard2.0
       Fable.Core (>= 3.0) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.6.2) - restriction: >= netstandard2.0
+    Fable.Elmish.React (3.0.1)
+      Fable.Core (>= 3.0) - restriction: >= netstandard2.0
+      Fable.Elmish (>= 3.0) - restriction: >= netstandard2.0
+      Fable.React (>= 5.1) - restriction: >= netstandard2.0
+      FSharp.Core (>= 4.6.2) - restriction: >= netstandard2.0
     Fable.Mocha (2.9.1)
       Fable.Core (>= 3.0) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7) - restriction: >= netstandard2.0
+    Fable.Promise (2.2.2)
+      Fable.Core (>= 3.1.5) - restriction: >= netstandard2.0
+      FSharp.Core (>= 4.7.2) - restriction: >= netstandard2.0
     Fable.React (7.4.3) - restriction: >= netstandard2.0
       Fable.Browser.Dom (>= 2.4.4) - restriction: >= netstandard2.0
       Fable.Core (>= 3.2.7) - restriction: >= netstandard2.0
@@ -52,6 +60,12 @@ NUGET
       Feliz (>= 1.28) - restriction: >= netstandard2.0
       Feliz.UseListener (>= 0.6.3) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.2) - restriction: >= netstandard2.0
+    Feliz.SweetAlert (2.8)
+      Fable.Core (>= 3.1.5 < 4.0)
+      Fable.Elmish.React (>= 3.0.1 < 4.0)
+      Fable.Promise (>= 2.1 < 3.0)
+      Feliz (>= 1.5 < 2.0)
+      FSharp.Core (>= 4.7.2)
     Feliz.UseElmish (1.6)
       Fable.Elmish (>= 3.0.6) - restriction: >= netstandard2.0
       Feliz (>= 1.55) - restriction: >= netstandard2.0
